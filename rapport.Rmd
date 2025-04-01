@@ -1,0 +1,165 @@
+---
+title: "Analyse des établissements cinématographiques en France"
+author: "Axel Frache, Nathan Dilhan, Liam Soulet"
+date: "2025-04-01"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
+    df_print: kable
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    fig_caption: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(kableExtra)
+library(ggthemes)
+```
+
+# Introduction
+
+Ce rapport propose une analyse statistique descriptive des établissements cinématographiques en France à partir d’un jeu de données riche de 2061 observations et 40 variables. 
+
+Nous cherchons à répondre aux questions suivantes :
+
+- **Comment les cinémas sont-ils répartis sur le territoire français ?**
+- **Existe-t-il des différences structurelles entre les établissements (nombre d’écrans, capacité, type) ?**
+- **Quel est le lien entre les caractéristiques d’un établissement (type, capacité) et sa fréquentation ?**
+- **Comment se répartit la part de marché du cinéma français et du cinéma Art et Essai ?**
+
+À travers des visualisations claires, nous dresserons un état des lieux synthétique du paysage cinématographique français.
+
+# Description du jeu de données
+
+Le jeu de données contient des informations sur les cinémas français : localisation, équipements (écrans, fauteuils), fréquentation (entrées, séances), typologie (multiplexe, art et essai), et part de marché par type de films. Voici un aperçu des premières lignes :
+
+```{r lecture-donnees}
+data <- read_delim("data/etablissements-cinematographiques.csv", delim = ";")
+data %>% head(5) %>% kable() %>% kable_styling()
+```
+
+# Analyse descriptive
+
+## Répartition des établissements par région
+
+Cette première analyse permet de répondre à la question : **Quels territoires sont les mieux équipés en salles de cinéma ?**
+
+```{r region-repartition, fig.width=8, fig.height=5}
+data %>% 
+  count(`région administrative`) %>%
+  ggplot(aes(x = reorder(`région administrative`, n), y = n)) +
+  geom_col(fill = "lightcoral") +
+  coord_flip() +
+  labs(title = "Nombre d’établissements par région", x = "Région administrative", y = "Nombre d’établissements") +
+  theme_minimal()
+```
+
+> **Observation :** L’Île-de-France concentre naturellement de nombreux établissements, mais certaines régions comme l’Auvergne-Rhône-Alpes ou PACA sont aussi bien représentées.
+
+## Distribution du nombre d’écrans par établissement
+
+Cette analyse s’intéresse à la structure des établissements : **sont-ils majoritairement de petite taille ou de grands complexes ?**
+
+```{r histogramme-ecrans, fig.width=7, fig.height=4}
+ggplot(data, aes(x = écrans)) +
+  geom_histogram(bins = 30, fill = "skyblue", color = "black") +
+  labs(title = "Distribution du nombre d’écrans par établissement", x = "Nombre d’écrans", y = "Fréquence") +
+  theme_minimal()
+```
+
+> **Observation :** La majorité des établissements possèdent moins de 5 écrans, les grands multiplexes restent minoritaires.
+
+## Entrées selon le type d’établissement (multiplexe)
+
+Nous étudions ici : **le type d’établissement influence-t-il la fréquentation ?**
+
+```{r boxplot-multiplexe, fig.width=6, fig.height=4}
+data %>%
+  mutate(multiplexe_label = if_else(multiplexe == "OUI", "Multiplexe", "Cinéma classique")) %>%
+  ggplot(aes(x = multiplexe_label, y = `entrées 2022`, fill = multiplexe_label)) +
+  geom_boxplot(outlier.size = 1.5, outlier.alpha = 0.5) +
+  scale_y_log10() +
+  scale_fill_manual(values = c("Cinéma classique" = "salmon", "Multiplexe" = "skyblue")) +
+  labs(
+    title = "Fréquentation selon le type d’établissement",
+    x = "Type d’établissement",
+    y = "Entrées en 2022 (échelle logarithmique)",
+    fill = "Type de cinéma"
+  ) +
+  theme_minimal()
+```
+
+> **Observation :** Les multiplexes attirent en moyenne bien plus de spectateurs, même si certains petits cinémas indépendants peuvent connaître une forte fréquentation ponctuelle.
+
+## Corrélation entre le nombre de fauteuils et les entrées
+
+Nous explorons ici la question : **la capacité d’accueil est-elle un facteur explicatif de la fréquentation ?**
+
+```{r correlation-fauteuils, fig.width=7, fig.height=5}
+ggplot(data, aes(x = fauteuils, y = `entrées 2022`)) +
+  geom_point(alpha = 0.4, color = "gray40") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Corrélation entre capacité d'accueil et fréquentation", x = "Nombre de fauteuils", y = "Entrées en 2022") +
+  theme_minimal()
+```
+
+> **Observation :** Une relation linéaire est visible : plus un établissement dispose de places, plus le volume de spectateurs est élevé, bien que la corrélation ne soit pas parfaite.
+
+## Part de marché des films français
+
+Nous cherchons à visualiser : **quelle place occupe le cinéma français dans la programmation ?**
+
+```{r pdm-francais, fig.width=7, fig.height=4}
+ggplot(data, aes(x = `PdM en entrées des films français`)) +
+  geom_histogram(bins = 30, fill = "darkgreen", color = "black") +
+  labs(title = "Part de marché des films français", x = "Pourcentage d'entrées", y = "Nombre de cinémas") +
+  theme_minimal()
+```
+
+> **Observation :** Les films français conservent une part importante du marché dans de nombreux établissements, souvent supérieure à 40%.
+
+## Art et Essai selon zone géographique
+
+Dernière question abordée : **la localisation géographique influence-t-elle la programmation culturelle (art et essai) ?**
+
+```{r art-essai-zone, fig.width=6, fig.height=4}
+ggplot(data, aes(x = `zone de la commune`, y = `PdM en entrées des films Art et Essai`, fill = `zone de la commune`)) +
+  geom_boxplot() +
+  labs(title = "Part des films Art et Essai selon la zone géographique", x = "Zone de la commune", y = "% d'entrées Art et Essai", fill = "Zone") +
+  theme_minimal()
+```
+
+> **Observation :** Les zones rurales et montagneuses accueillent une programmation plus orientée vers les films Art et Essai, reflet probable des politiques culturelles territoriales.
+
+# Conclusion
+
+Cette étude descriptive permet de dresser un panorama des cinémas français :
+
+- une répartition inégale mais active sur le territoire,
+- une forte prédominance des petits établissements,
+- des multiplexes qui concentrent une large part de la fréquentation,
+- et une programmation qui valorise le cinéma national et le cinéma indépendant selon les zones.
+
+Les questions posées ont trouvé des éléments de réponse grâce à des analyses visuelles claires et comparatives. Pour aller plus loin, des approches multivariées ou des comparaisons temporelles (avant/après-Covid) pourraient enrichir cette étude.
+
+# Annexe (optionnelle)
+
+```{r annexe, echo=TRUE, eval=FALSE}
+# Exemple de fonction personnalisée
+# get_top_regions <- function(df, var, top = 5) {
+#   df %>% group_by(`région administrative`) %>%
+#     summarise(val = sum({{ var }}, na.rm = TRUE)) %>%
+#     top_n(top, val)
+# }
+```
