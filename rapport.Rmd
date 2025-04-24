@@ -5,7 +5,7 @@ date: "2025-04-01"
 output:
   html_document:
     toc: true
-    # toc_float: true
+    toc_float: true
     number_sections: true
     fig_caption: true
     theme: united
@@ -25,6 +25,7 @@ library(dplyr)
 library(readr)
 library(kableExtra)
 library(ggthemes)
+library(tidyr)
 ```
 
 # Introduction
@@ -42,8 +43,6 @@ Nous cherchons à répondre aux questions suivantes :
 
 # Description du jeu de données
 
-Le jeu de données contient des informations sur les cinémas français : localisation, équipements (écrans, fauteuils), fréquentation (entrées, séances), typologie (multiplexe, art et essai), et part de marché par type de films. Voici un aperçu des premières lignes :
-
 ```{r lecture-donnees}
 data <- read_delim("data/etablissements-cinematographiques.csv", delim = ";")
 data %>% head(5) %>% kable() %>% kable_styling()
@@ -52,8 +51,6 @@ data %>% head(5) %>% kable() %>% kable_styling()
 # Analyse descriptive
 
 ## Répartition des établissements par région
-
-Cette première analyse permet de répondre à la question : **Quels territoires sont les mieux équipés en salles de cinéma ?**
 
 ```{r region-repartition, fig.width=8, fig.height=5}
 data %>% 
@@ -65,11 +62,9 @@ data %>%
   theme_minimal()
 ```
 
-> **Observation :** L’Île-de-France concentre naturellement de nombreux établissements, mais certaines régions comme l’Auvergne-Rhône-Alpes ou PACA sont aussi bien représentées. Cela laisse penser que l’implantation des cinémas ne dépend pas uniquement de la population qui y réside, mais aussi de la fréquentation temporaire (tourisme, festivals…).
+> **Observation :** L’Île-de-France concentre naturellement de nombreux établissements, mais certaines régions comme l’Auvergne-Rhône-Alpes ou PACA sont aussi bien représentées.
 
 ## Distribution du nombre d’écrans par établissement
-
-Cette analyse s’intéresse à la structure des établissements : **sont-ils majoritairement de petite taille ou de grands complexes ?**
 
 ```{r histogramme-ecrans, fig.width=7, fig.height=4}
 ggplot(data, aes(x = écrans)) +
@@ -78,11 +73,9 @@ ggplot(data, aes(x = écrans)) +
   theme_minimal()
 ```
 
-> **Observation :** Ce qu’on remarque surtout ici, c’est que la plupart des cinémas en France sont de petite taille. C’est souvent des cinés de centre-ville, parfois indépendants ou associatifs, avec juste quelques écrans. Les gros multiplexes (avec 8 ou 10 salles) existent, mais ils sont clairement pas la majorité. C’est plutôt cohérent avec le fait que la France soutient pas mal ses petites salles, notamment via les aides au cinéma Art et Essai.
+> **Observation :** La majorité des établissements possèdent moins de 5 écrans, les grands multiplexes restent minoritaires.
 
 ## Entrées selon le type d’établissement (multiplexe)
-
-Nous étudions ici : **le type d’établissement influence-t-il la fréquentation ?**
 
 ```{r boxplot-multiplexe, fig.width=6, fig.height=4}
 data %>%
@@ -94,17 +87,15 @@ data %>%
   labs(
     title = "Fréquentation selon le type d’établissement",
     x = "Type d’établissement",
-    y = "Entrées en 2022 (échelle logarithmique)",
+    y = "Entrées en 2022 (log)",
     fill = "Type de cinéma"
   ) +
   theme_minimal()
 ```
 
-> **Observation :** Le boxplot montre clairement un écart de fréquentation selon le type d’établissement. Les multiplexes concentrent l’essentiel des entrées, ce qui s’explique par leur capacité d’accueil plus grande et une programmation souvent plus commerciale. Cependant, le fait que certains petits cinémas “classiques” atteignent aussi des niveaux élevés de fréquentation (en particulier sur les extrêmes du boxplot) suggère qu’il existe des contre-exemples : peut-être des établissements situés dans des zones sans concurrence ou qui bénéficient d’une vraie fidélité du public local.
+> **Observation :** Les multiplexes attirent en moyenne un volume de spectateurs bien plus important que les cinémas classiques, ce qui corrobore leur capacité logistique plus élevée (souvent supérieure à 7 écrans). Ce constat est d’ailleurs en cohérence avec la relation observée entre le nombre de fauteuils et la fréquentation globale, où l’on note qu’une plus grande capacité d’accueil entraîne une augmentation linéaire du nombre d’entrées.
 
 ## Corrélation entre le nombre de fauteuils et les entrées
-
-Nous explorons ici la question : **la capacité d’accueil est-elle un facteur explicatif de la fréquentation ?**
 
 ```{r correlation-fauteuils, fig.width=7, fig.height=5}
 ggplot(data, aes(x = fauteuils, y = `entrées 2022`)) +
@@ -114,11 +105,9 @@ ggplot(data, aes(x = fauteuils, y = `entrées 2022`)) +
   theme_minimal()
 ```
 
-> **Observation :** Une relation linéaire est visible : plus un établissement dispose de places, plus le volume de spectateurs est élevé, bien que la corrélation ne soit pas parfaite. On observe quand même une certaine dispersion : à nombre de fauteuils égal, la fréquentation peut fortement varier. Cela montre que d’autres facteurs entrent en jeu (type de programmation, zone géographique, réputation du cinéma…). En gros, avoir plus de places aide, mais ça ne fait pas tout.
+> **Observation :** Une relation linéaire est visible : plus un établissement dispose de places, plus le volume de spectateurs est élevé, bien que la corrélation ne soit pas parfaite.
 
 ## Part de marché des films français
-
-Nous cherchons à visualiser : **quelle place occupe le cinéma français dans la programmation ?**
 
 ```{r pdm-francais, fig.width=7, fig.height=4}
 ggplot(data, aes(x = `PdM en entrées des films français`)) +
@@ -127,11 +116,70 @@ ggplot(data, aes(x = `PdM en entrées des films français`)) +
   theme_minimal()
 ```
 
-> **Observation :** Le graphe montre une présence forte du cinéma français, ce qui n’est pas anodin. Dans pas mal d’établissements, la part des entrées générées par les films français dépasse les 40 %, ce qui témoigne de leur bonne diffusion. C’est probablement lié à plusieurs facteurs : politique de quotas, attachement culturel, et aussi une production assez diversifiée qui permet de toucher des publics variés. 
+> **Observation :** Les films français conservent une part importante du marché dans de nombreux établissements, souvent supérieure à 40%.
+
+## Part moyenne de marché par type de film
+
+```{r part-marche-types, fig.width=7, fig.height=4}
+data_types <- data %>%
+  select(`PdM en entrées des films français`,
+         `PdM en entrées des films américains`,
+         `PdM en entrées des films européens`,
+         `PdM en entrées des autres films`,
+         `PdM en entrées des films Art et Essai`) %>%
+  drop_na() %>%
+  rename(Français = `PdM en entrées des films français`,
+         Américains = `PdM en entrées des films américains`,
+         Européens = `PdM en entrées des films européens`,
+         Autres = `PdM en entrées des autres films`,
+         `Art et Essai` = `PdM en entrées des films Art et Essai`)
+
+data_types %>%
+  summarise(across(everything(), mean, na.rm = TRUE)) %>%
+  pivot_longer(everything(), names_to = "Type", values_to = "Part_moyenne") %>%
+  ggplot(aes(x = reorder(Type, Part_moyenne), y = Part_moyenne, fill = Type)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Part moyenne de marché par type de film", x = "Type de film", y = "Part de marché (%)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+> **Observation :** Les films français représentent la plus grande part du marché en moyenne. Les films Art et Essai se démarquent par une présence significative, devançant même les films européens ou autres dans certains cas.
+
+> Cette distribution moyenne des parts de marché met en perspective les dynamiques observées entre les types d’établissements. En effet, si les multiplexes dominent en termes de fréquentation, leur programmation reste souvent orientée vers les films grand public (français et américains), tandis que les cinémas plus modestes — souvent situés en zones rurales ou intermédiaires — consacrent une place plus importante au cinéma Art et Essai, comme le montre la distribution dédiée à ce segment.
+
+## Distribution de la part des films Art et Essai
+
+```{r histogramme-art-essai, fig.width=7, fig.height=4}
+ggplot(data, aes(x = `PdM en entrées des films Art et Essai`)) +
+  geom_histogram(bins = 30, fill = "mediumseagreen", color = "black") +
+  labs(title = "Distribution de la part des films Art et Essai", x = "Part de marché (%)", y = "Nombre d’établissements") +
+  theme_minimal()
+```
+
+> **Observation :** Les établissements proposent généralement une programmation Art et Essai importante, avec de nombreux cas où cette part dépasse 40%, voire 60%.
+
+> La répartition globale des parts de marché des films Art et Essai fait apparaître une dispersion marquée, certains établissements atteignant des niveaux très élevés. Cela laisse supposer une segmentation territoriale ou structurelle. Le graphique suivant nous permet d’envisager cette hypothèse en examinant la distribution par zone géographique.
+
+## Comparaison : Art et Essai vs autres films
+
+```{r boxplot-art-essai-vs-autres, fig.width=6, fig.height=4}
+data_comp <- data_types %>%
+  mutate(Autres_films = Français + Américains + Européens + Autres - `Art et Essai`) %>%
+  select(`Art et Essai`, Autres_films) %>%
+  pivot_longer(cols = everything(), names_to = "Type", values_to = "Part")
+
+ggplot(data_comp, aes(x = Type, y = Part, fill = Type)) +
+  geom_boxplot() +
+  labs(title = "Comparaison des parts de marché : Art et Essai vs autres films", x = "", y = "Part de marché (%)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+> **Observation :** Les films Art et Essai occupent une place notable dans de nombreux cinémas, mais restent généralement en deçà de la part cumulée des autres types de films.
 
 ## Art et Essai selon zone géographique
-
-Dernière question abordée : **la localisation géographique influence-t-elle la programmation culturelle (art et essai) ?**
 
 ```{r art-essai-zone, fig.width=6, fig.height=4}
 ggplot(data, aes(x = `zone de la commune`, y = `PdM en entrées des films Art et Essai`, fill = `zone de la commune`)) +
@@ -140,7 +188,7 @@ ggplot(data, aes(x = `zone de la commune`, y = `PdM en entrées des films Art et
   theme_minimal()
 ```
 
-> **Observation :** Ce résultat est assez révélateur : les cinémas situés dans les zones rurales ou de montagne programment davantage de films Art et Essai. On peut y voir l’effet des politiques publiques de soutien au cinéma culturel en dehors des grands centres urbains. Ce sont souvent des salles classées Art et Essai, parfois associatives, qui ont un rôle important dans l’animation culturelle locale. C’est aussi peut-être une réponse à une demande différente : dans des zones moins concurrentielles, ces salles peuvent se permettre une programmation plus engagée ou originale.
+> **Observation :** Les zones rurales et montagneuses accueillent une programmation plus orientée vers les films Art et Essai, reflet probable des politiques culturelles territoriales.
 
 # Conclusion
 
@@ -150,6 +198,8 @@ Cette étude descriptive permet de dresser un panorama des cinémas français :
 - une forte prédominance des petits établissements,
 - des multiplexes qui concentrent une large part de la fréquentation,
 - et une programmation qui valorise le cinéma national et le cinéma indépendant selon les zones.
+
+> En reliant les capacités d’accueil, les types d’établissement et les parts de marché par catégorie de films, on observe une structuration cohérente du paysage cinématographique français. Les multiplexes urbains assurent les volumes, tandis que les établissements de plus petite taille, souvent situés hors métropoles, jouent un rôle clé dans la diversité culturelle, en valorisant notamment les films européens, Art et Essai, ou d’autres provenances.
 
 Les questions posées ont trouvé des éléments de réponse grâce à des analyses visuelles claires et comparatives. Pour aller plus loin, des approches multivariées ou des comparaisons temporelles (avant/après-Covid) pourraient enrichir cette étude.
 
