@@ -8,14 +8,14 @@ library(plotly)
 library(shinydashboard)
 library(shinyWidgets)
 
-data <- read_delim("data/etablissements-cinematographiques.csv", delim = ",", locale = locale(encoding = "UTF-8"))
+data <- read_delim("data/etablissements-cinematographiques.csv", delim = ";", locale = locale(encoding = "UTF-8"))
 
 print("Noms de colonnes originaux:")
 print(names(data))
 
 data <- data %>%
   mutate(
-    ecrans = as.numeric(ecrans),
+    ecrans = as.numeric(écrans),
     fauteuils = as.numeric(fauteuils),
     `entrées 2022` = as.numeric(`entrées 2022`),
     `entrées 2021` = as.numeric(`entrées 2021`),
