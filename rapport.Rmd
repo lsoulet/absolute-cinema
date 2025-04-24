@@ -28,18 +28,22 @@ library(ggthemes)
 library(tidyr)
 ```
 
+\newpage
+
 # Introduction
 
-Ce rapport propose une analyse statistique descriptive des établissements cinématographiques en France à partir d’un jeu de données riche de 2061 observations et 40 variables. 
+Ce rapport propose une analyse statistique descriptive des établissements cinématographiques en France à partir d'un jeu de données riche de 2061 observations et 40 variables. 
 
 Nous cherchons à répondre aux questions suivantes :
 
 - **Comment les cinémas sont-ils répartis sur le territoire français ?**
-- **Existe-t-il des différences structurelles entre les établissements (nombre d’écrans, capacité, type) ?**
-- **Quel est le lien entre les caractéristiques d’un établissement (type, capacité) et sa fréquentation ?**
+- **Existe-t-il des différences structurelles entre les établissements (nombre d'écrans, capacité, type) ?**
+- **Quel est le lien entre les caractéristiques d'un établissement (type, capacité) et sa fréquentation ?**
 - **Comment se répartit la part de marché du cinéma français et du cinéma Art et Essai ?**
 
 À travers des visualisations claires, nous dresserons un état des lieux synthétique du paysage cinématographique français.
+
+\newpage
 
 # Description du jeu de données
 
@@ -58,22 +62,26 @@ data %>%
   ggplot(aes(x = reorder(`région administrative`, n), y = n)) +
   geom_col(fill = "lightcoral") +
   coord_flip() +
-  labs(title = "Nombre d’établissements par région", x = "Région administrative", y = "Nombre d’établissements") +
+  labs(title = "Nombre d'établissements par région", x = "Région administrative", y = "Nombre d'établissements") +
   theme_minimal()
 ```
 
-> **Observation :** L’Île-de-France concentre naturellement de nombreux établissements, mais certaines régions comme l’Auvergne-Rhône-Alpes ou PACA sont aussi bien représentées.
+::: {.alert .alert-info}
+**Observation :** L'Île-de-France concentre naturellement de nombreux établissements, mais certaines régions comme l'Auvergne-Rhône-Alpes ou PACA sont aussi bien représentées.
+:::
 
 ## Distribution du nombre d’écrans par établissement
 
 ```{r histogramme-ecrans, fig.width=7, fig.height=4}
 ggplot(data, aes(x = écrans)) +
   geom_histogram(bins = 30, fill = "skyblue", color = "black") +
-  labs(title = "Distribution du nombre d’écrans par établissement", x = "Nombre d’écrans", y = "Fréquence") +
+  labs(title = "Distribution du nombre d'écrans par établissement", x = "Nombre d'écrans", y = "Fréquence") +
   theme_minimal()
 ```
 
-> **Observation :** La majorité des établissements possèdent moins de 5 écrans, les grands multiplexes restent minoritaires.
+::: {.alert .alert-info}
+**Observation :** La majorité des établissements possèdent moins de 5 écrans, les grands multiplexes restent minoritaires.
+:::
 
 ## Entrées selon le type d’établissement (multiplexe)
 
@@ -200,16 +208,3 @@ Cette étude descriptive permet de dresser un panorama des cinémas français :
 - et une programmation qui valorise le cinéma national et le cinéma indépendant selon les zones.
 
 > En reliant les capacités d’accueil, les types d’établissement et les parts de marché par catégorie de films, on observe une structuration cohérente du paysage cinématographique français. Les multiplexes urbains assurent les volumes, tandis que les établissements de plus petite taille, souvent situés hors métropoles, jouent un rôle clé dans la diversité culturelle, en valorisant notamment les films européens, Art et Essai, ou d’autres provenances.
-
-Les questions posées ont trouvé des éléments de réponse grâce à des analyses visuelles claires et comparatives. Pour aller plus loin, des approches multivariées ou des comparaisons temporelles (avant/après-Covid) pourraient enrichir cette étude.
-
-# Annexe (optionnelle)
-
-```{r annexe, echo=TRUE, eval=FALSE}
-# Exemple de fonction personnalisée
-# get_top_regions <- function(df, var, top = 5) {
-#   df %>% group_by(`région administrative`) %>%
-#     summarise(val = sum({{ var }}, na.rm = TRUE)) %>%
-#     top_n(top, val)
-# }
-```
