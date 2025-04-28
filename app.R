@@ -7,6 +7,9 @@ library(DT)
 library(plotly)
 library(shinydashboard)
 library(shinyWidgets)
+library(fresh)
+library(fontawesome)
+library(waiter)
 
 data <- read_delim("data/etablissements-cinematographiques.csv", delim = ";", locale = locale(encoding = "UTF-8"))
 
@@ -41,10 +44,52 @@ data <- data %>%
     evolution_covid = (`entrées 2022` - `entrées 2021`) / `entrées 2021` * 100
   )
 
+# Création du dossier www s'il n'existe pas
+if (!dir.exists("www")) {
+  dir.create("www")
+}
+
+# Création d'un thème personnalisé avec fresh
+cinema_theme <- create_theme(
+  adminlte_color(light_blue = "#3C8DBC"),
+  adminlte_sidebar(width = "240px", dark_bg = "#1A237E", dark_hover_bg = "#303F9F", dark_color = "#FFFFFF"),
+  adminlte_global(content_bg = "#F5F5F5", box_bg = "#FFFFFF", info_box_bg = "#FFFFFF"),
+  adminlte_vars(border_radius = "3px", box_border_radius = "5px", box_shadow_size = "0 2px 5px rgba(0,0,0,0.1)"),
+  output_file = "www/cinema_theme.css"
+)
+
+# CSS personnalisé
+custom_css <- tags$head(
+  tags$style(HTML("
+    .skin-blue .main-header .logo { font-family: 'Montserrat', sans-serif; font-weight: bold; }
+    .box { border-top: 3px solid #3C8DBC; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .box-header { border-bottom: 1px solid #f4f4f4; }
+    .value-box { box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s; }
+    .value-box:hover { transform: translateY(-5px); }
+    .welcome-text { font-size: 16px; line-height: 1.6; }
+    .highlight { color: #3C8DBC; font-weight: bold; }
+    .author-box { background-color: #f9f9f9; padding: 15px; border-radius: 5px; }
+    .author-name { font-weight: bold; color: #3C8DBC; }
+    .section-title { border-bottom: 2px solid #3C8DBC; padding-bottom: 8px; margin-bottom: 20px; }
+    .stat-box { text-align: center; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .stat-value { font-size: 24px; font-weight: bold; color: #3C8DBC; }
+    .stat-label { font-size: 14px; color: #777; }
+    .cinema-icon { margin-right: 8px; color: #3C8DBC; }
+  "))
+)
+
 ui <- dashboardPage(
-  dashboardHeader(title = "Cinémas en France"),
+  skin = "blue",
+  dashboardHeader(
+    title = tags$span(
+      tags$i(class = "fa fa-film", style = "margin-right: 10px;"), 
+      "Absolute Cinema"
+    ),
+    titleWidth = 300
+  ),
   
   dashboardSidebar(
+    width = 300,
     sidebarMenu(
       menuItem("Accueil", tabName = "accueil", icon = icon("home")),
       menuItem("Analyse régionale", tabName = "regional", icon = icon("chart-bar")),
@@ -53,66 +98,116 @@ ui <- dashboardPage(
       menuItem("Données brutes", tabName = "donnees", icon = icon("table"))
     ),
     br(),
-    pickerInput(
-      "region_filter", "Filtrer par région :",
-      choices = c("Toutes les régions" = "all", sort(unique(data$`région administrative`))),
-      selected = "all",
-      multiple = TRUE,
-      options = list(`actions-box` = TRUE)
-    ),
-    checkboxGroupInput(
-      "type_filter", "Type d'établissement :",
-      choices = c("Multiplexe", "Cinéma classique"),
-      selected = c("Multiplexe", "Cinéma classique")
-    ),
-    sliderInput(
-      "ecrans_filter", "Nombre d'écrans :",
-      min = 1, max = max(data$ecrans, na.rm = TRUE),
-      value = c(1, max(data$ecrans, na.rm = TRUE)),
-      step = 1
+    div(style = "padding: 0 15px;",
+        h4("Filtres", class = "section-title"),
+        pickerInput(
+          "region_filter", tags$span(icon("map-marker-alt"), "Filtrer par région :"),
+          choices = c("Toutes les régions" = "all", sort(unique(data$`région administrative`))),
+          selected = "all",
+          multiple = TRUE,
+          options = list(`actions-box` = TRUE, `live-search` = TRUE)
+        ),
+        checkboxGroupInput(
+          "type_filter", tags$span(icon("building"), "Type d'établissement :"),
+          choices = c("Multiplexe", "Cinéma classique"),
+          selected = c("Multiplexe", "Cinéma classique")
+        ),
+        sliderInput(
+          "ecrans_filter", tags$span(icon("desktop"), "Nombre d'écrans :"),
+          min = 1, max = max(data$ecrans, na.rm = TRUE),
+          value = c(1, max(data$ecrans, na.rm = TRUE)),
+          step = 1
+        )
     )
   ),
   
   dashboardBody(
+    use_theme(cinema_theme),
+    custom_css,
     tabItems(
       # Onglet d'accueil
       tabItem(tabName = "accueil",
               fluidRow(
+                div(class = "col-md-12",
+                    div(class = "box box-solid", style = "background: linear-gradient(135deg, #1A237E, #3949AB); color: white; border: none; border-radius: 8px;",
+                        div(class = "box-body", style = "padding: 30px;",
+                            h1("Analyse des établissements cinématographiques en France", style = "font-weight: 700; margin-bottom: 20px; font-size: 28px;"),
+                            h3("Projet de Data Visualisation - 2025", style = "font-weight: 300; margin-bottom: 30px;")
+                        )
+                    )
+                )
+              ),
+              
+              fluidRow(
                 box(
-                  title = "Bienvenue sur l'explorateur de cinémas français",
                   width = 12,
                   status = "primary",
-                  solidHeader = TRUE,
-                  h3("Analyse des établissements cinématographiques en France"),
-                  p("Le cinéma occupe une place essentielle dans la culture française, autant en tant qu'art qu'en tant qu'industrie. ",
-                    "Mais derrière la magie de l'écran, la réalité des établissements cinématographiques en France révèle des dynamiques variées : ",
-                    "diversité des structures, disparités territoriales, différences de fréquentation..."),
-                  p("Cette application interactive vous propose une plongée statistique dans l'univers des cinémas français, ",
-                    "en s'appuyant sur un jeu de données riche de 2061 observations et 40 variables. ",
-                    "Notre objectif est de dresser un état des lieux synthétique mais précis du paysage cinématographique, ",
-                    "en répondant à plusieurs questions clés :"),
-                  tags$ul(
-                    tags$li("Comment les cinémas sont-ils répartis sur le territoire français ?"),
-                    tags$li("Quelles différences observe-t-on entre les types d'établissements (nombre d'écrans, capacité d'accueil, multiplexes vs cinémas indépendants) ?"),
-                    tags$li("Quel est le lien entre les caractéristiques physiques d'un établissement et sa fréquentation ?"),
-                    tags$li("Comment se répartissent les parts de marché entre cinéma français, films américains, européens, et cinéma Art et Essai ?")
-                  ),
-                  p("À travers des visualisations claires et des analyses ciblées, nous mettons en lumière non seulement les grandes tendances nationales, ",
-                    "mais aussi les spécificités locales et structurelles qui façonnent l'offre cinématographique française."),
-                  hr(),
-                  h4("À propos du jeu de données"),
-                  p("Cette étude s'appuie sur un jeu de données exhaustif recensant 2061 établissements cinématographiques répartis sur l'ensemble du territoire français. ",
-                    "Les données, issues du Centre National du Cinéma et de l'image animée (CNC), offrent une vision complète du paysage cinématographique français ",
-                    "à travers 40 variables couvrant l'identification, la localisation, les caractéristiques techniques, la fréquentation et l'orientation artistique des établissements."),
-                  hr(),
-                  h4("Auteurs du projet"),
-                  p("Cette application a été développée par :"),
-                  tags$ul(
-                    tags$li("Axel Frache"),
-                    tags$li("Nathan Dilhan"),
-                    tags$li("Liam Soulet")
-                  ),
-                  p("Dans le cadre d'un projet de Data Visualisation.")
+                  solidHeader = FALSE,
+                  div(class = "welcome-text",
+                      h3(icon("film", class = "cinema-icon"), "Présentation du projet"),
+                      p("Cette application interactive présente une analyse approfondie des ", span("2061 établissements cinématographiques", class = "highlight"), 
+                        " répartis sur le territoire français, basée sur les données officielles du Centre National du Cinéma et de l'image animée (CNC)."),
+                      
+                      p("Le cinéma occupe une place essentielle dans le paysage culturel français. Cette étude vise à analyser ",
+                        "la structure et la diversité des établissements cinématographiques, depuis les petits cinémas mono-écran jusqu'aux grands multiplexes, ",
+                        "afin de mieux comprendre les dynamiques territoriales et économiques qui façonnent ce secteur."),
+                      
+                      p("La France se distingue par un réseau cinématographique particulier, caractérisé par une forte densité d'établissements ",
+                        "et une diversité de programmation notable. Les analyses présentées dans cette application permettent d'identifier ",
+                        "les disparités régionales et les facteurs qui influencent la fréquentation et la programmation des cinémas."),
+                      
+                      div(style = "background-color: #f0f7ff; padding: 15px; border-left: 4px solid #3C8DBC; margin: 20px 0; border-radius: 0 5px 5px 0;",
+                          h4("Objectifs de l'étude"),
+                          tags$ul(
+                            tags$li(icon("map-marked-alt"), " ", strong("Analyse territoriale"), " - Étudier la répartition géographique des établissements cinématographiques en France"),
+                            tags$li(icon("building"), " ", strong("Typologie des établissements"), " - Caractériser les différents types de cinémas selon leur taille et leur statut"),
+                            tags$li(icon("chart-line"), " ", strong("Analyse de performance"), " - Évaluer les relations entre les caractéristiques structurelles et la fréquentation"),
+                            tags$li(icon("globe-europe"), " ", strong("Diversité culturelle"), " - Examiner la répartition des films selon leur origine et leur classification")
+                          )
+                      ),
+                      
+                      p("Cette application permet d'explorer les données à travers différentes visualisations interactives. ",
+                        "Les filtres disponibles dans le panneau latéral permettent d'affiner l'analyse selon les régions, ",
+                        "les types d'établissements ou le nombre d'écrans."),
+                      
+                      div(style = "margin-top: 30px;",
+                          h4("Méthodologie et sources", class = "section-title"),
+                          p("Cette étude s'appuie sur les données officielles du ", strong("Centre National du Cinéma et de l'image animée (CNC)"), 
+                            ", l'organisme public chargé de la régulation et du soutien au secteur cinématographique en France. ",
+                            "Le jeu de données comprend 40 variables couvrant :"),
+                          tags$ul(
+                            tags$li("L'identification et la localisation des établissements"),
+                            tags$li("Les caractéristiques techniques (nombre d'écrans, capacité d'accueil)"),
+                            tags$li("Les données de fréquentation (entrées 2021-2022)"),
+                            tags$li("Les informations sur la programmation et l'orientation artistique")
+                          )
+                      ),
+                      
+                      div(class = "author-box", style = "margin-top: 30px;",
+                          h4("Auteurs", class = "section-title"),
+                          p("Ce projet a été réalisé dans le cadre d'un cours de Data Visualisation par :"),
+                          div(style = "display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 15px;",
+                              div(class = "stat-box", style = "flex: 1; min-width: 200px; margin: 10px;",
+                                  icon("user", style = "font-size: 24px; color: #3C8DBC;"),
+                                  h4(class = "author-name", "Axel Frache")
+                              ),
+                              div(class = "stat-box", style = "flex: 1; min-width: 200px; margin: 10px;",
+                                  icon("user", style = "font-size: 24px; color: #3C8DBC;"),
+                                  h4(class = "author-name", "Nathan Dilhan")
+                              ),
+                              div(class = "stat-box", style = "flex: 1; min-width: 200px; margin: 10px;",
+                                  icon("user", style = "font-size: 24px; color: #3C8DBC;"),
+                                  h4(class = "author-name", "Liam Soulet")
+                              )
+                          ),
+                          p(style = "text-align: center; margin-top: 15px;", "Polytech Montpellier - 2025")
+                      )
+                  )
+                )
+              ),
+              fluidRow(
+                div(class = "col-md-12",
+                    h3("Les chiffres clés", class = "section-title", style = "margin-top: 20px;")
                 )
               ),
               fluidRow(
@@ -151,6 +246,16 @@ ui <- dashboardPage(
       # Onglet analyse régionale
       tabItem(tabName = "regional",
               fluidRow(
+                div(class = "col-md-12",
+                    div(class = "box box-solid", style = "background: #f5f5f5; border-left: 4px solid #3C8DBC; margin-bottom: 20px; padding: 15px;",
+                        h4("Analyse régionale", style = "margin-top: 0;"),
+                        p("Cette section permet d'analyser en détail les caractéristiques des établissements cinématographiques par région. ",
+                          "Sélectionnez une région pour explorer ses statistiques spécifiques, la distribution des entrées et la répartition des types d'établissements. ",
+                          "Cette analyse régionale permet d'identifier les disparités territoriales et les spécificités locales du paysage cinématographique français.")
+                    )
+                )
+              ),
+              fluidRow(
                 box(
                   title = "Sélection de la région",
                   width = 3,
@@ -188,6 +293,17 @@ ui <- dashboardPage(
       # Onglet typologie des cinémas
       tabItem(tabName = "typologie",
               fluidRow(
+                div(class = "col-md-12",
+                    div(class = "box box-solid", style = "background: #f5f5f5; border-left: 4px solid #3C8DBC; margin-bottom: 20px; padding: 15px;",
+                        h4("Typologie des établissements cinématographiques", style = "margin-top: 0;"),
+                        p("Cette section analyse les différents types d'établissements cinématographiques et leurs caractéristiques. ",
+                          "Les visualisations permettent de comparer les multiplexes et cinémas classiques, d'étudier la relation entre capacité d'accueil et fréquentation, ",
+                          "et d'analyser les taux d'occupation selon le type d'établissement. Cette analyse typologique met en évidence les différents modèles économiques ",
+                          "qui coexistent dans le secteur cinématographique français.")
+                    )
+                )
+              ),
+              fluidRow(
                 box(
                   title = "Comparaison des types d'établissements",
                   width = 12,
@@ -216,6 +332,17 @@ ui <- dashboardPage(
       
       # Onglet programmation
       tabItem(tabName = "programmation",
+              fluidRow(
+                div(class = "col-md-12",
+                    div(class = "box box-solid", style = "background: #f5f5f5; border-left: 4px solid #3C8DBC; margin-bottom: 20px; padding: 15px;",
+                        h4("Analyse de la programmation", style = "margin-top: 0;"),
+                        p("Cette section examine la programmation des établissements cinématographiques en France. ",
+                          "Les visualisations présentent la répartition des films selon leur origine (français, américains, européens, autres), ",
+                          "le nombre de films programmés par type d'établissement, et la place du cinéma Art et Essai. ",
+                          "Cette analyse de programmation permet d'évaluer la diversité culturelle de l'offre cinématographique et les spécificités de diffusion selon les types d'établissements.")
+                    )
+                )
+              ),
               fluidRow(
                 box(
                   title = "Parts de marché par origine des films",
@@ -246,6 +373,17 @@ ui <- dashboardPage(
       # Onglet données brutes
       tabItem(tabName = "donnees",
               fluidRow(
+                div(class = "col-md-12",
+                    div(class = "box box-solid", style = "background: #f5f5f5; border-left: 4px solid #3C8DBC; margin-bottom: 20px; padding: 15px;",
+                        h4("Données brutes", style = "margin-top: 0;"),
+                        p("Cette section présente l'ensemble des données brutes sur les établissements cinématographiques en France. ",
+                          "Le tableau interactif permet de consulter, filtrer et trier les données selon différents critères. ",
+                          "Vous pouvez effectuer des recherches, réorganiser les colonnes et exporter les données pour des analyses complémentaires. ",
+                          "Cette vue détaillée donne accès à l'ensemble des variables disponibles pour chaque établissement.")
+                    )
+                )
+              ),
+              fluidRow(
                 box(
                   title = "Données brutes des établissements cinématographiques",
                   width = 12,
@@ -261,6 +399,10 @@ ui <- dashboardPage(
 
 # Backend
 server <- function(input, output, session) {
+  # Fermer l'écran de chargement si présent
+  if (requireNamespace("waiter", quietly = TRUE)) {
+    waiter::waiter_hide()
+  }
   
   filtered_data <- reactive({
     result <- data
@@ -281,11 +423,11 @@ server <- function(input, output, session) {
     return(result)
   })
   
-  # Onglet Accueil - Indicateurs clés
+  # Onglet Accueil - Indicateurs clés avec animations et styles améliorés
   output$total_cinemas <- renderValueBox({
     valueBox(
-      nrow(filtered_data()),
-      "Établissements",
+      formatC(nrow(filtered_data()), format="d", big.mark=" "),
+      "Établissements cinématographiques",
       icon = icon("building"),
       color = "blue"
     )
@@ -293,18 +435,19 @@ server <- function(input, output, session) {
   
   output$total_ecrans <- renderValueBox({
     valueBox(
-      sum(filtered_data()$ecrans, na.rm = TRUE),
-      "Écrans",
-      icon = icon("tv"),
+      formatC(sum(filtered_data()$ecrans, na.rm = TRUE), format="d", big.mark=" "),
+      "Écrans à travers la France",
+      icon = icon("desktop"),
       color = "green"
     )
   })
   
   output$total_entrees <- renderValueBox({
+    total_entrees <- sum(filtered_data()$`entrées 2022`, na.rm = TRUE)
     valueBox(
-      paste0(round(sum(filtered_data()$`entrées 2022`, na.rm = TRUE)/1000000, 1), " M"),
-      "Entrées en 2022",
-      icon = icon("users"),
+      paste0(formatC(round(total_entrees / 1e6, 1), format="f", digits=1, big.mark=" "), " millions"),
+      "Spectateurs accueillis en 2022",
+      icon = icon("ticket-alt"),
       color = "purple"
     )
   })
@@ -312,10 +455,10 @@ server <- function(input, output, session) {
   output$evolution_moyenne <- renderValueBox({
     evol <- mean(filtered_data()$evolution_covid, na.rm = TRUE)
     valueBox(
-      paste0(round(evol, 1), "%"),
-      "Évolution 2021-2022",
+      paste0(formatC(round(evol, 1), format="f", digits=1), " %"),
+      "Évolution de fréquentation 2021-2022",
       icon = icon("chart-line"),
-      color = if(evol > 0) "green" else "red"
+      color = if(evol >= 0) "olive" else "red"
     )
   })
   

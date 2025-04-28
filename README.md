@@ -20,20 +20,24 @@ L'application utilise les packages R suivants :
 - plotly
 - shinydashboard
 - shinyWidgets
+- fresh (pour la personnalisation du thème)
+- fontawesome (pour les icônes améliorées)
+- waiter (pour les animations de chargement)
 
 Installez-les si nécessaire avec :
 ```r
-install.packages(c("shiny", "ggplot2", "tidyverse", "DT", "plotly", "shinydashboard", "shinyWidgets"))
+install.packages(c("shiny", "ggplot2", "tidyverse", "DT", "plotly", "shinydashboard", "shinyWidgets", "fresh", "fontawesome", "waiter"))
 ```
 
 ## Structure de l'application
 
-L'application est organisée en quatre onglets principaux :
+L'application est organisée en cinq onglets principaux :
 
-1. **Accueil** : Présente les indicateurs clés et la distribution des établissements par type et nombre d'écrans
-2. **Vue d'ensemble** : Offre une analyse comparative des régions et la répartition géographique des cinémas
-3. **Analyse régionale** : Permet d'explorer en détail les caractéristiques des cinémas d'une région spécifique
-4. **Données brutes** : Affiche les données complètes sous forme de tableau interactif
+1. **Accueil** : Présente le projet, ses objectifs, les indicateurs clés et les visualisations principales
+2. **Analyse régionale** : Permet d'explorer en détail les caractéristiques des cinémas d'une région spécifique
+3. **Typologie des cinémas** : Analyse les différents types d'établissements et leurs caractéristiques
+4. **Programmation** : Étudie la répartition des films par origine et type
+5. **Données brutes** : Affiche les données complètes sous forme de tableau interactif
 
 ## Choix de visualisation
 
@@ -52,6 +56,8 @@ L'application est organisée en quatre onglets principaux :
 - Conversion explicite des colonnes numériques
 - Création de variables dérivées pour enrichir l'analyse (taille d'établissement, type de cinéma, etc.)
 - Tooltips interactifs pour une exploration approfondie des données
+- Interface utilisateur améliorée avec un thème personnalisé et des éléments visuels modernes
+- Mise en page responsive adaptée à différentes tailles d'écran
 
 ## Source des données
 
