@@ -34,17 +34,17 @@ library(tidyr)
 
 Le cinéma occupe une place essentielle dans la culture française, autant en tant qu'art qu'en tant qu'industrie. Mais derrière la magie de l'écran, la réalité des établissements cinématographiques en France révèle des dynamiques variées : diversité des structures, disparités territoriales, différences de fréquentation...
 
-Ce rapport propose une plongée statistique dans l’univers des cinémas français, en s’appuyant sur un jeu de données riche de 2061 observations et 40 variables. Notre objectif est de dresser un état des lieux synthétique mais précis du paysage cinématographique, en répondant à plusieurs questions clés :
+Ce rapport propose une plongée statistique dans l'univers des cinémas français, en s'appuyant sur un jeu de données riche de 2061 observations et 40 variables. Notre objectif est de dresser un état des lieux synthétique mais précis du paysage cinématographique, en répondant à plusieurs questions clés :
 
 - Comment les cinémas sont-ils répartis sur le territoire français ?
 
-- Quelles différences observe-t-on entre les types d'établissements (nombre d’écrans, capacité d’accueil, multiplexes vs cinémas indépendants) ?
+- Quelles différences observe-t-on entre les types d'établissements (nombre d'écrans, capacité d'accueil, multiplexes vs cinémas indépendants) ?
 
-- Quel est le lien entre les caractéristiques physiques d’un établissement et sa fréquentation ?
+- Quel est le lien entre les caractéristiques physiques d'un établissement et sa fréquentation ?
 
 - Comment se répartissent les parts de marché entre cinéma français, films américains, européens, et cinéma Art et Essai ?
 
-À travers des visualisations claires et des analyses ciblées, nous mettons en lumière non seulement les grandes tendances nationales, mais aussi les spécificités locales et structurelles qui façonnent l’offre cinématographique française.
+À travers des visualisations claires et des analyses ciblées, nous mettons en lumière non seulement les grandes tendances nationales, mais aussi les spécificités locales et structurelles qui façonnent l'offre cinématographique française.
 
 \newpage
 
@@ -95,12 +95,12 @@ data %>%
 ```
 
 ::: {.alert .alert-info}
-**Observation :** La région Auvergne-Rhône-Alpes concentre le plus grand nombre d'établissements cinématographiques, suivie de près par l'Île-de-France, ce qui s'explique par leur forte densité de population et leur dynamisme culturel. La Nouvelle-Aquitaine et Provence-Alpes-Côte d'Azur complètent également le podium avec une présence significative.
+La région Auvergne-Rhône-Alpes concentre le plus grand nombre d'établissements cinématographiques, suivie de près par l'Île-de-France, ce qui s'explique par leur forte densité de population et leur dynamisme culturel. La Nouvelle-Aquitaine et Provence-Alpes-Côte d'Azur complètent également le podium avec une présence significative.
 À l'inverse, les régions moins peuplées comme la Corse disposent d'une offre cinématographique plus limitée, reflétant les disparités démographiques du territoire français.
 Cette répartition géographique inégale soulève des questions d'accessibilité culturelle dans certaines zones moins bien dotées.
 :::
 
-## Distribution du nombre d’écrans par établissement
+## Distribution du nombre d'écrans par établissement
 
 ```{r histogramme-ecrans, fig.width=7, fig.height=4}
 ggplot(data, aes(x = écrans)) +
@@ -110,10 +110,10 @@ ggplot(data, aes(x = écrans)) +
 ```
 
 ::: {.alert .alert-info}
-**Observation :** La distribution du nombre d'écrans révèle une prédominance marquée des petits établissements : plus de 70% des cinémas français possèdent moins de 5 écrans, et près de 40% sont des mono-écrans. Cette structure témoigne d'un maillage territorial composé majoritairement de petites salles de proximité. Les grands multiplexes (8 écrans ou plus) représentent moins de 15% du parc cinématographique, mais concentrent une part disproportionnée des entrées nationales. Cette distribution asymétrique illustre la coexistence de deux modèles économiques distincts dans le secteur : les petites structures indépendantes d'un côté et les grands complexes commerciaux de l'autre.
+La distribution du nombre d'écrans révèle une prédominance marquée des petits établissements : plus de 70% des cinémas français possèdent moins de 5 écrans, et près de 40% sont des mono-écrans. Cette structure témoigne d'un maillage territorial composé majoritairement de petites salles de proximité. Les grands multiplexes (8 écrans ou plus) représentent moins de 15% du parc cinématographique, mais concentrent une part disproportionnée des entrées nationales. Cette distribution asymétrique illustre la coexistence de deux modèles économiques distincts dans le secteur : les petites structures indépendantes d'un côté et les grands complexes commerciaux de l'autre.
 :::
 
-## Entrées selon le type d’établissement (multiplexe)
+## Entrées selon le type d'établissement (multiplexe)
 
 ```{r boxplot-multiplexe, fig.width=6, fig.height=4}
 data %>%
@@ -123,8 +123,8 @@ data %>%
   scale_y_log10() +
   scale_fill_manual(values = c("Cinéma classique" = "salmon", "Multiplexe" = "skyblue")) +
   labs(
-    title = "Fréquentation selon le type d’établissement",
-    x = "Type d’établissement",
+    title = "Fréquentation selon le type d'établissement",
+    x = "Type d'établissement",
     y = "Entrées en 2022 (log)",
     fill = "Type de cinéma"
   ) +
@@ -132,7 +132,7 @@ data %>%
 ```
 
 ::: {.alert .alert-info}
-**Observation :** Les multiplexes attirent en moyenne un volume de spectateurs significativement plus élevé que les cinémas classiques, avec une médiane d'entrées annuelles environ 10 fois supérieure. Cette différence majeure s'explique par plusieurs facteurs : leur capacité d'accueil plus importante (généralement plus de 7 écrans), leur localisation stratégique dans des zones à forte densité de population ou des centres commerciaux, et leur programmation diversifiée permettant de toucher un public plus large. L'échelle logarithmique du graphique souligne l'ampleur de cet écart et révèle également une plus grande variabilité de fréquentation parmi les multiplexes, certains atteignant plus d'un million d'entrées annuelles. Cette domination des multiplexes en termes de fréquentation illustre la concentration économique du secteur, où un nombre restreint d'établissements capte une part considérable du marché.
+Les multiplexes attirent en moyenne un volume de spectateurs significativement plus élevé que les cinémas classiques. L'observation du boxplot suggère une médiane d'entrées annuelles environ 10 fois supérieure pour les multiplexes. Cette différence majeure s'explique par plusieurs facteurs : leur capacité d'accueil plus importante (généralement plus de 7 écrans), leur localisation stratégique dans des zones à forte densité de population ou des centres commerciaux, et leur programmation diversifiée permettant de toucher un public plus large. L'échelle logarithmique du graphique souligne l'ampleur de cet écart et révèle également une plus grande variabilité de fréquentation parmi les multiplexes, certains atteignant plus d'un million d'entrées annuelles. Cette domination des multiplexes en termes de fréquentation illustre la concentration économique du secteur, où un nombre restreint d'établissements capte une part considérable du marché.
 :::
 
 ## Corrélation entre le nombre de fauteuils et les entrées
@@ -146,7 +146,7 @@ ggplot(data, aes(x = fauteuils, y = `entrées 2022`)) +
 ```
 
 ::: {.alert .alert-info}
-**Observation :** Le graphique révèle une corrélation positive entre la capacité d'accueil (nombre de fauteuils) et la fréquentation annuelle des établissements. Cette relation linéaire, bien qu'imparfaite (avec un coefficient de corrélation estimé autour de 0,7-0,8), confirme que la taille de l'infrastructure constitue un déterminant majeur du potentiel de fréquentation. On observe toutefois une dispersion significative autour de la droite de régression, particulièrement pour les établissements de taille intermédiaire (1000-2000 fauteuils), suggérant que d'autres facteurs influencent la performance : emplacement géographique, politique tarifaire, programmation, ou encore concurrence locale. Les grands établissements (plus de 3000 fauteuils) présentent généralement un meilleur taux de remplissage relatif, probablement en raison d'économies d'échelle dans leur fonctionnement et leurs stratégies marketing.
+Le nuage de points et la droite de régression ajoutée indiquent une tendance positive claire entre la capacité d'accueil (nombre de fauteuils) et la fréquentation annuelle (entrées 2022). Cela suggère que, globalement, les établissements avec plus de fauteuils tendent à avoir plus d'entrées. La dispersion des points autour de la droite montre cependant que la relation n'est pas parfaitement linéaire ; d'autres facteurs influencent manifestement la performance (emplacement, programmation, concurrence, etc.). On note une variabilité importante, en particulier pour les cinémas de taille intermédiaire. Les très grands établissements (plus de 3000 fauteuils) semblent se situer plus systématiquement au-dessus de la moyenne en termes d'entrées pour leur taille.
 :::
 
 ## Part de marché des films français
@@ -159,7 +159,7 @@ ggplot(data, aes(x = `PdM en entrées des films français`)) +
 ```
 
 ::: {.alert .alert-info}
-**Observation :** L'histogramme de la part de marché des films français révèle une distribution unimodale relativement symétrique, centrée autour de 40-45%. Cette concentration autour d'une valeur centrale témoigne d'une certaine homogénéité dans la place accordée au cinéma national par les établissements français. Avec une médiane proche de 45%, les films français occupent une position dominante dans le paysage cinématographique, témoignant de la vitalité de la production hexagonale et de l'efficacité des politiques de soutien au cinéma français.
+L'histogramme de la part de marché des films français révèle une distribution unimodale relativement symétrique, centrée autour de 40-45%. Cette concentration autour d'une valeur centrale témoigne d'une certaine homogénéité dans la place accordée au cinéma national par les établissements français. Avec une médiane proche de 45%, les films français occupent une position dominante dans le paysage cinématographique, témoignant de la vitalité de la production hexagonale et de l'efficacité des politiques de soutien au cinéma français.
 
 On observe toutefois une dispersion notable (de 10% à plus de 70%), indiquant que certains établissements privilégient davantage les productions internationales, tandis que d'autres se spécialisent fortement dans le cinéma français. Cette forte présence globale du cinéma national constitue une particularité française par rapport à d'autres marchés européens, où les productions américaines dominent généralement plus nettement.
 :::
@@ -192,7 +192,7 @@ data_types %>%
 ```
 
 ::: {.alert .alert-info}
-**Observation :** L'analyse des parts de marché moyennes par type de film révèle une hiérarchie claire dans les préférences du public français. Le cinéma national domine avec environ 40% des entrées, suivi de près par les productions américaines (35%). Cette répartition relativement équilibrée entre films français et américains constitue une spécificité française dans le paysage cinématographique mondial, où les productions hollywoodiennes dominent généralement plus nettement.
+L'analyse des parts de marché moyennes par type de film révèle une hiérarchie claire dans les préférences du public français. Le cinéma national domine avec environ 40% des entrées, suivi de près par les productions américaines (35%). Cette répartition relativement équilibrée entre films français et américains constitue une spécificité française dans le paysage cinématographique mondial, où les productions hollywoodiennes dominent généralement plus nettement.
 
 Les films Art et Essai occupent une place remarquable avec près de 30% des entrées en moyenne, dépassant largement les productions européennes non-françaises (10%) et les films d'autres origines (5%). Cette forte présence du cinéma Art et Essai témoigne d'une politique culturelle active et d'un public français réceptif aux œuvres plus exigeantes ou moins commerciales.
 
@@ -204,12 +204,12 @@ Cette distribution des parts de marché reflète également une segmentation du 
 ```{r histogramme-art-essai, fig.width=7, fig.height=4}
 ggplot(data, aes(x = `PdM en entrées des films Art et Essai`)) +
   geom_histogram(bins = 30, fill = "mediumseagreen", color = "black") +
-  labs(title = "Distribution de la part des films Art et Essai", x = "Part de marché (%)", y = "Nombre d’établissements") +
+  labs(title = "Distribution de la part des films Art et Essai", x = "Part de marché (%)", y = "Nombre d'établissements") +
   theme_minimal()
 ```
 
 ::: {.alert .alert-info}
-**Observation :** L'histogramme de la part des films Art et Essai révèle une distribution complexe avec une concentration importante dans les valeurs basses (0-20%) et une répartition plus uniforme sur le reste du spectre. Cette distribution asymptrique, avec une fréquence élevée de faibles valeurs et une longue queue à droite, témoigne d'une forte hétérogénéité dans les stratégies de programmation des établissements français.
+L'histogramme de la part des films Art et Essai révèle une distribution complexe avec une concentration importante dans les valeurs basses (0-20%) et une répartition plus uniforme sur le reste du spectre. Cette distribution asymptrique, avec une fréquence élevée de faibles valeurs et une longue queue à droite, témoigne d'une forte hétérogénéité dans les stratégies de programmation des établissements français.
 
 On distingue plusieurs groupes d'établissements : un premier groupe important avec une faible part d'Art et Essai (moins de 20%), un groupe intermédiaire avec une programmation mixte (20-60%), et un groupe plus restreint mais significatif d'établissements fortement spécialisés (plus de 60%). Cette distribution suggère une polarisation du secteur, avec d'un côté des cinémas commerciaux et de l'autre des établissements engagés dans une programmation plus exigeante.
 
@@ -232,7 +232,7 @@ ggplot(data_comp, aes(x = Type, y = Part, fill = Type)) +
 ```
 
 ::: {.alert .alert-info}
-**Observation :** La comparaison directe entre la part de marché des films Art et Essai et celle des autres catégories cumulées met en évidence un déséquilibre structurel dans l'offre cinématographique française. Les films Art et Essai représentent en médiane environ 30% des entrées, face aux 70% captés par l'ensemble des autres productions (françaises commerciales, américaines, européennes et autres).
+La comparaison directe entre la part de marché des films Art et Essai et celle des autres catégories cumulées met en évidence un déséquilibre structurel dans l'offre cinématographique française. Les films Art et Essai représentent en médiane environ 30% des entrées, face aux 70% captés par l'ensemble des autres productions (françaises commerciales, américaines, européennes et autres).
 
 Les boîtes à moustaches révèlent toutefois une dispersion beaucoup plus importante pour l'Art et Essai (de 5% à plus de 90%) que pour les autres films, dont la part reste rarement inférieure à 40%. Cette asymétrie de distribution confirme l'existence d'établissements hautement spécialisés dans l'Art et Essai, probablement des cinémas indépendants bénéficiant de labels et de soutiens spécifiques, qui constituent des exceptions notables dans le paysage cinématographique.
 
@@ -249,12 +249,12 @@ ggplot(data, aes(x = `zone de la commune`, y = `PdM en entrées des films Art et
 ```
 
 ::: {.alert .alert-info}
-**Observation :** L’analyse de la part des films Art et Essai selon la zone géographique révèle des disparités territoriales intéressantes.
+L'analyse de la part des films Art et Essai selon la zone géographique révèle des disparités territoriales intéressantes.
 Les zones rurales (R) présentent une médiane de part de marché Art et Essai plus élevée (autour de 40-50%) que les zones urbaines denses (I) ou intermédiaires (B, C), où la médiane se situe plutôt entre 25% et 35%.
 
 Ce constat – une programmation culturelle plus exigeante dans des territoires moins densément peuplés – peut s'expliquer par plusieurs facteurs complémentaires :
 
-- L’impact des politiques culturelles territoriales, avec des soutiens spécifiques pour encourager la diversité cinématographique dans les zones rurales.
+- L'impact des politiques culturelles territoriales, avec des soutiens spécifiques pour encourager la diversité cinématographique dans les zones rurales.
 
 - La forte présence de cinémas municipaux ou associatifs en milieu rural, moins soumis aux impératifs de rentabilité immédiate que les exploitants commerciaux des zones urbaines.
 
@@ -262,7 +262,7 @@ Ce constat – une programmation culturelle plus exigeante dans des territoires 
 
 - Une demande locale spécifique, les spectateurs des territoires ruraux étant parfois plus attachés à un cinéma de proximité valorisant le patrimoine culturel.
 
-Cette répartition inversée souligne une particularité française : le cinéma Art et Essai, loin d’être confiné aux grandes métropoles, trouve dans les zones rurales un terrain d’expression privilégié, contribuant à maintenir une offre culturelle riche sur l’ensemble du territoire.
+Cette répartition inversée souligne une particularité française : le cinéma Art et Essai, loin d'être confiné aux grandes métropoles, trouve dans les zones rurales un terrain d'expression privilégié, contribuant à maintenir une offre culturelle riche sur l'ensemble du territoire.
 :::
 
 \newpage
