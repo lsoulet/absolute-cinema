@@ -83,10 +83,36 @@ ui <- dashboardPage(
                   width = 12,
                   status = "primary",
                   solidHeader = TRUE,
-                  "Cette application interactive vous permet d'explorer les données sur les établissements cinématographiques en France.",
-                  "Utilisez le menu de navigation pour accéder aux différentes analyses et visualisations.",
-                  br(), br(),
-                  "Le jeu de données contient des informations sur 2061 cinémas avec leurs caractéristiques structurelles, leur fréquentation et leur programmation."
+                  h3("Analyse des établissements cinématographiques en France"),
+                  p("Le cinéma occupe une place essentielle dans la culture française, autant en tant qu'art qu'en tant qu'industrie. ",
+                    "Mais derrière la magie de l'écran, la réalité des établissements cinématographiques en France révèle des dynamiques variées : ",
+                    "diversité des structures, disparités territoriales, différences de fréquentation..."),
+                  p("Cette application interactive vous propose une plongée statistique dans l'univers des cinémas français, ",
+                    "en s'appuyant sur un jeu de données riche de 2061 observations et 40 variables. ",
+                    "Notre objectif est de dresser un état des lieux synthétique mais précis du paysage cinématographique, ",
+                    "en répondant à plusieurs questions clés :"),
+                  tags$ul(
+                    tags$li("Comment les cinémas sont-ils répartis sur le territoire français ?"),
+                    tags$li("Quelles différences observe-t-on entre les types d'établissements (nombre d'écrans, capacité d'accueil, multiplexes vs cinémas indépendants) ?"),
+                    tags$li("Quel est le lien entre les caractéristiques physiques d'un établissement et sa fréquentation ?"),
+                    tags$li("Comment se répartissent les parts de marché entre cinéma français, films américains, européens, et cinéma Art et Essai ?")
+                  ),
+                  p("À travers des visualisations claires et des analyses ciblées, nous mettons en lumière non seulement les grandes tendances nationales, ",
+                    "mais aussi les spécificités locales et structurelles qui façonnent l'offre cinématographique française."),
+                  hr(),
+                  h4("À propos du jeu de données"),
+                  p("Cette étude s'appuie sur un jeu de données exhaustif recensant 2061 établissements cinématographiques répartis sur l'ensemble du territoire français. ",
+                    "Les données, issues du Centre National du Cinéma et de l'image animée (CNC), offrent une vision complète du paysage cinématographique français ",
+                    "à travers 40 variables couvrant l'identification, la localisation, les caractéristiques techniques, la fréquentation et l'orientation artistique des établissements."),
+                  hr(),
+                  h4("Auteurs du projet"),
+                  p("Cette application a été développée par :"),
+                  tags$ul(
+                    tags$li("Axel Frache"),
+                    tags$li("Nathan Dilhan"),
+                    tags$li("Liam Soulet")
+                  ),
+                  p("Dans le cadre d'un projet de Data Visualisation.")
                 )
               ),
               fluidRow(
